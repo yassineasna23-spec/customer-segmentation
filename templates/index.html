@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Segmentation Insights</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>Customer Segmentation Portal</h1>
+            <p class="subtitle">Input customer metrics to predict their profile segment and view marketing recommendations.</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <main class="main-content">
+            <div class="card form-card">
+                <h2>Analyze Customer</h2>
+                <form action="{{ url_for('predict') }}" method="POST">
+                    <div class="form-group">
+                        <label for="income">Annual Income (k$)</label>
+                        <input 
+                            type="number" 
+                            id="income" 
+                            name="income" 
+                            min="0"
+                            step="any" 
+                            placeholder="e.g. 60" 
+                            value="{{ result.income if result else '' }}" 
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="score">Spending Score (1-100)</label>
+                        <input 
+                            type="number" 
+                            id="score" 
+                            name="score" 
+                            step="any" 
+                            min="1" 
+                            max="100" 
+                            placeholder="e.g. 75" 
+                            value="{{ result.score if result else '' }}" 
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn-submit">Generate Profile</button>
+                </form>
+            </div>
+
+            {% if result %}
+            <div class="card result-card animated-fade-in">
+                <h2>Segmentation Result</h2>
+                
+                <div class="result-badge-container">
+                    <span class="badge badge-cluster">Cluster #{{ result.cluster }}</span>
+                    <span class="badge badge-segment">{{ result.segment }}</span>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Analyzed Values:</span>
+                        <span class="detail-value">${{ result.income }}k Income | {{ result.score }} Spending Score</span>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="strategy-section">
+                        <h3>Target Strategy Action:</h3>
+                        <p class="advice-text">“{{ result.advice }}”</p>
+                    </div>
+                </div>
+                <a href="/" class="btn-clear">Clear Result</a>
+            </div>
+            {% else %}
+            <div class="card empty-card">
+                <div class="empty-icon">📊</div>
+                <h3>Ready for Analysis</h3>
+                <p>Fill out the form metrics and submit to generate real-time customer segmentation insights.</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>
